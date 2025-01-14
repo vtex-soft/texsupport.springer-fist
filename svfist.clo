@@ -24,7 +24,7 @@
 %%   Grave accent  \`     Left brace    \{     Vertical bar  \|
 %%   Right brace   \}     Tilde         \~}
 \ProvidesFile{svfist.clo}
-              [2012/06/27 v1.0
+              [2025/01/10 v1.01
       style option for FIST journal]
 \typeout{SVJour Class option: svfist.clo for FIST journal}
 
@@ -172,6 +172,41 @@
 
 \def\commentsname{Comments}
 \newenvironment{comments}[1][\commentsname]{\section*{#1}\footnotesize}{\par}
+  
+%
+% number lines on left side
+%
+\RequirePackage{etoolbox}
+\def\numberlines@size{\scriptsize\ttfamily}
+\def\numberlines@skip{24\p@}
+\def\put@numberlines@box{\copy\numberlines@box}
+\newbox\numberlines@box
+\newskip\numberlines@box@skip
+\def\set@numberlines@box{%
+    \setlength\numberlines@box@skip\headsep
+    \addtolength\numberlines@box@skip{5\p@}%    
+    \setbox\numberlines@box\vtop to\textheight{%
+        \parindent=\z@
+        \vskip.5\topskip
+        \@tempcnta=0 %
+        \@tempdima=\topskip
+        \loop
+            \advance\@tempcnta by 1 %
+            \advance\@tempdima by \baselineskip
+            \hbox{\llap{\numberlines@size\the\@tempcnta\kern\numberlines@skip}}%
+        \ifdim\@tempdima<\textheight\repeat
+        \vss
+        }%
+    \ht\numberlines@box=\z@
+    \dp\numberlines@box=\z@
+}
+   
+\AtBeginDocument{\set@numberlines@box}
+
+\def\showgrid{%
+    \patchcmd\@outputpage{\vskip\headsep}{\vskip\headsep\put@numberlines@box}{}{}%
+}  
+  
   
 \endinput
 %%
