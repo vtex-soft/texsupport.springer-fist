@@ -24,7 +24,7 @@
 %%   Grave accent  \`     Left brace    \{     Vertical bar  \|
 %%   Right brace   \}     Tilde         \~}
 \ProvidesFile{svfist.clo}
-              [2025/01/10 v1.01
+              [2025/01/21 v1.02
       style option for FIST journal]
 \typeout{SVJour Class option: svfist.clo for FIST journal}
 
@@ -179,34 +179,37 @@
 \RequirePackage{etoolbox}
 \def\numberlines@size{\scriptsize\ttfamily}
 \def\numberlines@skip{24\p@}
-\def\put@numberlines@box{\copy\numberlines@box}
 \newbox\numberlines@box
 \newskip\numberlines@box@skip
-\def\set@numberlines@box{%
-    \setlength\numberlines@box@skip\headsep
-    \addtolength\numberlines@box@skip{5\p@}%    
+\setlength\numberlines@box@skip\headsep
+\addtolength\numberlines@box@skip{5\p@}%    
+\def\grid@count@lines{0}
+\AtBeginDocument{\xdef\grid@baselineskip{\the\baselineskip}}
+
+\def\add@numberlines@box{%
     \setbox\numberlines@box\vtop to\textheight{%
+        \setbox\@tempboxa=\copy\strutbox % copy normalsize strutbox
+        \numberlines@size % change to smaller size 
         \parindent=\z@
-        \vskip.5\topskip
-        \@tempcnta=0 %
-        \@tempdima=\topskip
+        \vskip2pt\relax
+        \@tempcnta=\grid@count@lines\relax
+        \@tempdima=\topskip\relax
         \loop
             \advance\@tempcnta by 1 %
-            \advance\@tempdima by \baselineskip
-            \hbox{\llap{\numberlines@size\the\@tempcnta\kern\numberlines@skip}}%
+            \advance\@tempdima by \grid@baselineskip
+            \xdef\grid@count@lines{\the\@tempcnta}%
+            \hbox{\copy\@tempboxa\llap{\grid@count@lines\kern\numberlines@skip}}%
         \ifdim\@tempdima<\textheight\repeat
         \vss
         }%
     \ht\numberlines@box=\z@
     \dp\numberlines@box=\z@
+    \box\numberlines@box
 }
-   
-\AtBeginDocument{\set@numberlines@box}
 
 \def\showgrid{%
-    \patchcmd\@outputpage{\vskip\headsep}{\vskip\headsep\put@numberlines@box}{}{}%
+    \patchcmd\@outputpage{\vskip\headsep}{\vskip\headsep\add@numberlines@box}{}{}%
 }  
-  
   
 \endinput
 %%
